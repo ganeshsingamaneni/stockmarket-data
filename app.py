@@ -29,9 +29,9 @@ api.add_resource(GetUserSearchedScripts,'/api/getusersearchedscripts/<int:id>')
 # api.add_resource(Signin, '/api/usersignin')
 
 
-# @app.route('/api/templaterender')
-# def RenderNewspaperTemplate():
-#     return render_template('news_paper_grid.html')
+@app.route('/api/templaterender')
+def RenderNewspaperTemplate():
+    return render_template('sample.html')
 
 
 
