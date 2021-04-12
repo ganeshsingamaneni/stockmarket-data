@@ -14,11 +14,15 @@ gunicorn==20.0.4
 idna==2.9
 itsdangerous==1.1.0
 Jinja2==2.11.2
+lxml==4.6.3
 Mako==1.1.2
 MarkupSafe==1.1.1
 marshmallow==2.19.5
 marshmallow-sqlalchemy==0.17.0
+multitasking==0.0.9
 mysqlclient==2.0.3
+numpy==1.19.5
+pandas==1.1.5
 python-dateutil==2.8.1
 python-editor==1.0.4
 pytz==2019.3
@@ -28,3 +32,4 @@ six==1.14.0
 SQLAlchemy==1.3.16
 urllib3==1.25.9
 Werkzeug==1.0.1
+yfinance==0.1.59

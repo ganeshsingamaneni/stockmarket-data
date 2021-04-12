@@ -1,7 +1,7 @@
 import datetime
 from sqlalchemy.orm import validates
 from config import db
-
+from models.searched_scripts import SearchedScripts
 
 class Users(db.Model):
     __tablename__ = "users"
@@ -14,6 +14,9 @@ class Users(db.Model):
     createdAt = db.Column(db.DateTime,default=datetime.datetime.utcnow())
     updatedAt =  db.Column(db.DateTime, onupdate=datetime.datetime.utcnow())
    
+
+    user_script = db.relationship(
+        "SearchedScripts", backref=db.backref('userscripts'), uselist=False)
     @validates('email')
     def validate_email(self, key, address):
         assert '@' in address

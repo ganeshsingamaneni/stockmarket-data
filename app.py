@@ -19,6 +19,13 @@ from controllers.users.getbyidupdateuser import GetUpdateUser
 
 api.add_resource(GetAddUsers, '/api/users')
 api.add_resource(GetUpdateUser,'/api/users/<int:id>')
+
+
+from controllers.searched_scripts.getaddsearched_scripts import GetAddSearchedScripts,GetUserSearchedScripts
+
+api.add_resource(GetAddSearchedScripts, '/api/getaddsearchedscripts')
+api.add_resource(GetUserSearchedScripts,'/api/getusersearchedscripts/<int:id>')
+
 # api.add_resource(Signin, '/api/usersignin')
 
 
