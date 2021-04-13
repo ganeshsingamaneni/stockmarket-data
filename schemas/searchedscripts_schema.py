@@ -19,3 +19,8 @@ class AddSearchedScriptsSchema(ma.ModelSchema):
         sqla_session = db.session
 
 
+class GetUserSearchedScriptsSchema(ma.ModelSchema):
+    class Meta:
+        model = SearchedScripts
+        fields = ("id", "stockscript")
+        sqla_session = db.session

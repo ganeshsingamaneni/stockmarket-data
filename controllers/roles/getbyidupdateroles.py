@@ -29,6 +29,25 @@ class GetUpdateRoles(Resource):
         except Exception as e:
             return({"success": False, "message": "server is down try after sometime", "error": str(e)})
 
+class GetRole(Resource):
+    def __init__(self):
+        pass
+
+    # Roles get call based on id
+    def get(self, name):
+        try:
+            obj = db.session.query(Roles).filter(Roles.name == name).one_or_none()
+            if obj is None:
+                response = {"success": False, "message": "no data found on this id", "id": name}
+                return(response)
+            else:    
+                schema = GetRolesSchema()
+                data = schema.dump(obj).data
+                response = {"success": True, "message":"data fetched successfully", "data": data}
+                return (response)            
+        except Exception as e:
+            return({"success": False, "message": "server is down try after sometime", "error": str(e)})            
+
 
 
     

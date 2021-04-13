@@ -1,0 +1,96 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+
+</head>
+
+<body>
+    <div id="chartContainer" style="height: 300px; width: 100%;"></div>
+
+
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+
+
+    <script>
+        var chart;
+        window.onload = function () {
+
+
+            fetch('http://localhost:5000/api/getaddsearchedscripts', {
+                method: "POST",
+                body: JSON.stringify({
+                    stockscript: 'GOOG',
+                    userId: 7
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // let keys = Object.keys(data.data.stockscriptoutput)
+                    // let a = keys.map(key => key.split(' ')[0]);
+                    const result = [];
+                    Object.entries(data.data.stockscriptoutput).forEach(([key, value]) => {
+                        // console.log(key, value)
+                        let obj = { x: new Date(key.split(' ')[0]), y: value.Volume };
+                        // console.log(obj)
+                        // result.push(obj);
+                        if (obj.x && obj.y) {
+
+                           if(result.length <=20)
+                            result.push(obj);
+                            // console.log(chart.data.dataPoints, "this sio")
+                            // chart.render();
+                        }
+
+
+                    });
+                    chart = new CanvasJS.Chart("chartContainer", {
+                                animationEnabled: true,
+                                title: {
+                                    text: "Date"
+                                },
+                                axisX: {
+                                    valueFormatString: "DD MMM",
+                                    crosshair: {
+                                        enabled: true,
+                                        snapToDataPoint: true
+                                    }
+                                },
+                                axisY: {
+                                    title: "Volume",
+                                    valueFormatString: "0",
+                                    crosshair: {
+                                        enabled: true,
+                                        snapToDataPoint: true,
+                                        labelFormatter: function (e) {
+                                            return "$" + CanvasJS.formatNumber(e.value, "0");
+                                        }
+                                    }
+                                },
+                                data: [{
+                                    type: "area",
+                                    xValueFormatString: "DD MMM",
+                                    yValueFormatString: "0",
+                                    dataPoints: result
+                                }]
+
+                            });
+                            chart.render();
+                    // chart.data.dataPoints = result;
+                    // if (!data.success && window.location.href.includes('index')) {
+                    //     window.location.href = './adminstratorCreate.html';
+                    // }
+                });
+            // chart.render();
+        }
+
+            // (function () {
+
+            // }())
+    </script>
+</body>
+
+</html>

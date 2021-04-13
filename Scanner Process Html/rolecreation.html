@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+        crossorigin="anonymous"></script>
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+    <style>
+        .cursor-pointer {
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="d-flex justify-content-between align-items-center   ">
+        <div class="input-group my-3 w-50 ms-4">
+            <input type="text" class="form-control" placeholder="Stock Script" id="search"
+                aria-label="Recipient's username" aria-describedby="basic-addon2">
+            <span class="input-group-text cursor-pointer" id="basic-addon2" onclick="search()">Search</span>
+        </div>
+        <div class="me-2" id="isAdministrator">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">Add User</button>
+            <button class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#addRoleModal">Add Role</button>
+        </div>
+    </div>
+
+
+    <div id="chartContainer" style="height: 300px; width: 100%;"></div>
+
+
+    <div class="mt-3">
+        <h4>Previous Searches</h4>
+        <div class="row container" id="recentSearch">
+
+        </div>
+    </div>
+
+
+    <!-- Add User Modal -->
+    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addUserModalLabel">Add User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="addUserForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label>Name: </label>
+                            <input type="text" placeholder="Name" class="form-control" id="userName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Email: </label>
+                            <input type="email" placeholder="Email" class="form-control" id="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Password: </label>
+                            <input type="password" placeholder="Password" class="form-control" id="password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Roles</label>
+                            <select id="rolesRef" class="form-control form-select">
+                                <option></option>
+                            </select>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Role Modal -->
+    <div class="modal fade" id="addRoleModal" tabindex="-1" aria-labelledby="addRoleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addRoleModalLabel">Add Role</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>Role: </label>
+                        <input type="text" placeholder="Role" class="form-control" id="roleName">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="addRole()">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+
+    <script src="./index.js"></script>
+    <script>
+        var chart;
+        window.onload = function () {
+            const localData = JSON.parse(window.localStorage.getItem('userDetails'));
+            document.getElementById('isAdministrator').style.display = 'none';
+            if (localData.rolesuser.name == 'Administrator') {
+                document.getElementById('isAdministrator').style.display = 'block';
+                fetch("http://localhost:5000/api/roles", { method: 'GET' }).then(response => response.json())
+                    .then(res => {
+                        if (res.success) {
+                            document.getElementById('rolesRef').innerHTML = '';
+                            res.data.forEach(each => {
+                                document.getElementById('rolesRef').innerHTML += `
+                            <option value="${each.id}">${each.name}</option>
+                            `;
+                            });
+                        }
+                    });
+            }
+            recentSearches();
+        }
+
+        function recentSearches() {
+            const localData = JSON.parse(window.localStorage.getItem('userDetails'));
+            fetch(`http://localhost:5000/api/getusersearchedscripts/${localData.id}`, {
+                method: "GET",
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('recentSearch').innerHTML = '';
+                    if (data.success) {
+                        data.data.forEach((each, index) => {
+                            if (index <= 9) {
+                                document.getElementById('recentSearch').innerHTML += `
+                                <div class="col-sm col-md-3">
+                                    <p class="p-3 border shadow-sm text-center rounded cursor-pointer" onclick="getSearchData(${JSON.stringify(each.stockscript).split('"').join("&quot;")})">${each.stockscript}</p>
+                                </div>
+                                `;
+                            }
+                        });
+                    } else {
+                        document.getElementById('recentSearch').innerHTML = `
+                            <div class="text-center text-muted my-4">No Recent Searches</div>
+                        `;
+                    }
+                })
+        }
+
+        function search() {
+            const searchValue = document.getElementById('search').value;
+            getSearchData(searchValue);
+        }
+
+        function getSearchData(data) {
+            const localData = JSON.parse(window.localStorage.getItem('userDetails'));
+            fetch('http://localhost:5000/api/getaddsearchedscripts', {
+                method: "POST",
+                body: JSON.stringify({
+                    stockscript: data,
+                    userId: localData.id
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    recentSearches();
+                    const result = [];
+                    Object.entries(data.data.stockscriptoutput).forEach(([key, value]) => {
+                        let obj = { x: new Date(key.split(' ')[0]), y: value.Volume };
+                        if (obj.x && obj.y) {
+                            if (result.length <= 20)
+                                result.push(obj);
+                        }
+                    });
+                    chart = new CanvasJS.Chart("chartContainer", {
+                        animationEnabled: true,
+                        title: {
+                            text: "Date"
+                        },
+                        axisX: {
+                            valueFormatString: "DD MMM",
+                            crosshair: {
+                                enabled: true,
+                                snapToDataPoint: true
+                            }
+                        },
+                        axisY: {
+                            title: "Volume",
+                            valueFormatString: "0",
+                            crosshair: {
+                                enabled: true,
+                                snapToDataPoint: true,
+                                labelFormatter: function (e) {
+                                    return "$" + CanvasJS.formatNumber(e.value, "0");
+                                }
+                            }
+                        },
+                        data: [{
+                            type: "area",
+                            xValueFormatString: "DD MMM",
+                            yValueFormatString: "0",
+                            dataPoints: result
+                        }]
+
+                    });
+                    chart.render();
+                });
+        }
+    </script>
+
+</body>
+
+</html>

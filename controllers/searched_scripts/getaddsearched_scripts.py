@@ -37,7 +37,7 @@ class GetAddSearchedScripts(Resource):
             request_json_data = request.get_json()
             msft = yf.Ticker(request_json_data['stockscript'])
             # print(msft)
-            output = msft.history(period="min")
+            output = msft.history(period="max")
             output.index = output.index.map(str)
 
             # print(data,type(data))
@@ -78,7 +78,7 @@ class GetUserSearchedScripts(Resource):
             obj = SearchedScripts.query.filter(SearchedScripts.userId == id).order_by(SearchedScripts.id.desc()).all()
             # obj = db.session.query(SearchedScripts).order_by(SearchedScripts.id).all()
             if obj:
-                schema = GetSearchedScriptsSchema(many=True)
+                schema = GetUserSearchedScriptsSchema(many=True)
                 data = schema.dump(obj).data
                 response = {"success": True, "message":"data fetched successfully" ,"data": data}
                 return (response)

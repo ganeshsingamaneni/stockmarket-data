@@ -23,6 +23,7 @@ multitasking==0.0.9
 mysqlclient==2.0.3
 numpy==1.19.5
 pandas==1.1.5
+pkg-resources==0.0.0
 python-dateutil==2.8.1
 python-editor==1.0.4
 pytz==2019.3
